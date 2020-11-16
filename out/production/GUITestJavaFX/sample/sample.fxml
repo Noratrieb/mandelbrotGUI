@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane alignment="center" hgap="10.0" prefHeight="143.0" prefWidth="107.0" stylesheets="/sample/sample.css" vgap="10" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <Button onAction="#showImage" prefHeight="25.0" prefWidth="110.0" text="Start" GridPane.rowIndex="1" />
+   <ImageView fx:id="setPreview" fitWidth="1000" preserveRatio="true" />
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>
