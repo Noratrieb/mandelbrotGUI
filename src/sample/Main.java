@@ -15,6 +15,7 @@ public class Main extends Application {
         primaryStage.setTitle("Mandelbrot");
         primaryStage.setScene(new Scene(root, 1800, 900));
         primaryStage.show();
+
     }
 
 
