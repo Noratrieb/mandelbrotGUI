@@ -20,7 +20,7 @@ public class MandelbrotSet {
     private double pointY = 0;
     private double zoom = 1;
     private int width = 1920;
-    private int threshold = 100;
+    private int threshold = 1000;
     private float ratio = 2 / 3f;
     private int threadAmount = 10;
 

@@ -29,7 +29,6 @@ public class CalculationThread extends Thread {
             long startTime = System.currentTimeMillis();
 
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            File f = null;
 
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
@@ -109,14 +108,18 @@ public class CalculationThread extends Thread {
         }
     }
 
+    /**
+     * Checks wheter the number is in the Mandelbrot set
+     * @param number The Complex Number to be checked
+     * @param iterations The amount of iterations the program should do
+     * @param threshold The threshold for a number not being in the set
+     * @return -1 if the number is in the set, else it returns the amount of interations before it reached the threshold
+     */
     int checkMandelbrot(CNumber number, int iterations, double threshold) {
-        //returns -1 if the number is in the set, returns the number of iterations before it reached the threshold if it is not in the set
 
-        // start
         CNumber n = new CNumber();
         int reached = -1;
 
-        // first
         n = CNumber.add(n, number);
 
         for (int i = 0; i < iterations; i++) {
@@ -131,7 +134,6 @@ public class CalculationThread extends Thread {
     }
 
     public int getColorAsInt(int a, int r, int g, int b) {
-
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
