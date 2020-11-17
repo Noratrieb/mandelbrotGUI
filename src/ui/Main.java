@@ -1,4 +1,4 @@
-package sample;
+package ui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -13,7 +13,7 @@ public class Main extends Application {
 
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Mandelbrot");
-        primaryStage.setScene(new Scene(root, 1800, 900));
+        primaryStage.setScene(new Scene(root, 500, 300));
         primaryStage.show();
 
     }

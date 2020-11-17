@@ -1,8 +1,9 @@
-package sample;
+package ui;
 
 import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import mandelbrotCalculator.MandelbrotSet;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,5 +21,10 @@ public class Controller {
         Image image = new Image(stream);
         setPreview.setImage(image);
         currentFrame++;
+    }
+
+    public void startCalculation(ActionEvent actionEvent) {
+        MandelbrotSet m = new MandelbrotSet(2, 1, 3, 1);
+        m.startMandelbrot();
     }
 }
