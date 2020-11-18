@@ -1,11 +1,5 @@
 package mandelbrotCalculator;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
 public class MandelbrotSet {
 
     private double[][] interestingPoints = {{-0.75, 0}, {-0.77568377, 0.13646737}, {-1.74995768370609350360221450607069970727110579726252077930242837820286008082972804887218672784431700831100544507655659531379747541999999995, 0.00000000000000000278793706563379402178294753790944364927085054500163081379043930650189386849765202169477470552201325772332454726999999995}};
@@ -22,11 +16,15 @@ public class MandelbrotSet {
     private int width = 1920;
     private int threshold = 1000;
     private float ratio = 2 / 3f;
-    private int threadAmount = 10;
+    private int threadAmount = Runtime.getRuntime().availableProcessors();
 
     //only declared
     private int height;
     private int iterations;
+
+    private boolean[] complete;
+
+    private long startTime = System.currentTimeMillis();
 
 
     /**
@@ -51,6 +49,8 @@ public class MandelbrotSet {
             case 4 -> 5000;
             default -> quality;
         };
+
+        complete = new boolean[threadAmount];
     }
 
     public MandelbrotSet(){
@@ -58,6 +58,8 @@ public class MandelbrotSet {
     }
 
     public void startMandelbrot() {
+
+        System.out.println("Started calculating " + frames + " frame/s");
 
         double forceCenterX;
         double forceCenterY;
@@ -69,23 +71,14 @@ public class MandelbrotSet {
             forceCenterY = interestingPoints[pointNumber][1];
         }
 
-        // TIME
-        long startTime = System.currentTimeMillis();
-
         double[][] zoomValues = zoomValues(frames, width, height, forceCenterX, forceCenterY, zoomSpeed, zoom);
 
         //create the threads
         CalculationThread[] threads = new CalculationThread[threadAmount];
         for (int i = 0; i < threadAmount; i++) {
-            threads[i] = new CalculationThread(i, threadAmount, frames, width, height, iterations, threshold, zoomValues);
+            threads[i] = new CalculationThread(this, i, threadAmount, frames, width, height, iterations, threshold, zoomValues);
             threads[i].start();
         }
-
-        // TIME should probably not be here and serves no practical purpose but that doesn't stop me from keeping it here
-        long endTime = System.currentTimeMillis();
-        long completionTimeLong = endTime - startTime;
-        double completionTimeSec = (double) completionTimeLong / 1000.0;
-        System.out.println("Prepared " + frames + " frame/s in " + completionTimeSec + "s");
     }
 
 
@@ -122,6 +115,26 @@ public class MandelbrotSet {
         return zoomValues;
     }
 
+    public void setFinished(int threadNumber){
+        complete[threadNumber] = true;
+
+        boolean finished = true;
+        for(boolean b : complete){
+            if (!b) {
+                finished = false;
+                break;
+            }
+        }
+
+        if(finished){
+            System.out.println("CALCULATION FINISHED");
+            // TIME should probably not be here and serves no practical purpose but that doesn't stop me from keeping it here
+            long endTime = System.currentTimeMillis();
+            long completionTimeLong = endTime - startTime;
+            double completionTimeSec = (double) completionTimeLong / 1000.0;
+            System.out.println("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
+        }
+    }
 
     //SETTER
     public void setZoom(double zoom) {

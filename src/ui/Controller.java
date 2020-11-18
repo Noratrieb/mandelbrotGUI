@@ -24,7 +24,7 @@ public class Controller {
     }
 
     public void startCalculation(ActionEvent actionEvent) {
-        MandelbrotSet m = new MandelbrotSet(2, 3, 3, 10);
+        MandelbrotSet m = new MandelbrotSet(2, 2, 3, 10);
         m.startMandelbrot();
     }
 }

@@ -18,6 +18,8 @@ public class CalculationThread extends Thread {
     double[][] zoomValues;
     CNumber[][] samples;
 
+    MandelbrotSet set;
+
     public void run() {
 
         long totalStartTime = System.currentTimeMillis();
@@ -49,16 +51,19 @@ public class CalculationThread extends Thread {
             createImage(image, frameCounter, width, height, values, iterations);
 
             long frameTime = System.currentTimeMillis() - startTime;
-            System.out.println("------------------------Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s------------------------");
+            System.out.println("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
 
         }
 
         long totalTime = System.currentTimeMillis() - totalStartTime;
-        System.out.println("Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
+        System.out.println("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
+
+        set.setFinished(threadNumber);
 
     }
 
-    public CalculationThread(int number, int threads, int frames, int widthC, int heightC, int iterationsC, int thresholdC, double[][] zoomValuesC) {
+    public CalculationThread(MandelbrotSet set, int number, int threads, int frames, int widthC, int heightC, int iterationsC, int thresholdC, double[][] zoomValuesC) {
+        this.set = set;
         this.threadNumber = number;
         this.threadAmount = threads;
         this.frameAmount = frames;
@@ -80,8 +85,6 @@ public class CalculationThread extends Thread {
      */
     void createImage(BufferedImage image, int counter, int width, int height, double[][] values, int iterations) {
 
-        //System.out.println("Frame: " + counter + " | Started creating image...");
-
         int p0 = getColorAsInt(0, 0, 0, 0);
         int t0 = -1;
 
@@ -100,16 +103,15 @@ public class CalculationThread extends Thread {
             }
         }
         try {
-            File f = new File("C:\\Users\\nilsh\\Desktop\\testordner/sterbi" + counter + ".png");
+            File f = new File("C:\\Users\\nilsh\\Desktop\\testordner/image" + counter + ".png");
             ImageIO.write(image, "png", f);
-            System.out.println(f.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Checks wheter the number is in the Mandelbrot set
+     * Checks whether the number is in the Mandelbrot set
      * @param number The Complex Number to be checked
      * @param iterations The amount of iterations the program should do
      * @param threshold The threshold for a number not being in the set
