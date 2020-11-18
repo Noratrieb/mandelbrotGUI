@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import mandelbrotCalculator.MandelbrotSet;
+import util.Values;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,18 +14,15 @@ public class Controller {
 
     public ImageView setPreview;
 
-    int currentFrame;
+    public void nextImage(int frameNumber) throws FileNotFoundException {
 
-    public void showImage(ActionEvent actionEvent) throws FileNotFoundException {
-
-        InputStream stream = new FileInputStream("C:\\Users\\nilsh\\IdeaProjects\\testStuff\\sequence/Sequence" + currentFrame + ".png");
+        InputStream stream = new FileInputStream(Values.SAVE_IMAGE_PATH + frameNumber + ".png");
         Image image = new Image(stream);
         setPreview.setImage(image);
-        currentFrame++;
     }
 
     public void startCalculation(ActionEvent actionEvent) {
-        MandelbrotSet m = new MandelbrotSet(2, 2, 3, 10);
+        MandelbrotSet m = new MandelbrotSet(2, 1, 3, 100, this);
         m.startMandelbrot();
     }
 }

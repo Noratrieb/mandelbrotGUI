@@ -6,7 +6,7 @@
 
 <GridPane alignment="center" hgap="10.0" prefHeight="143.0" prefWidth="107.0" stylesheets="/ui/sample.css" vgap="10" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.Controller">
     <Button onAction="#startCalculation" prefHeight="25.0" prefWidth="110.0" text="Start" GridPane.rowIndex="1" />
-   <ImageView fx:id="setPreview" fitWidth="100" preserveRatio="true" />
+   <ImageView fx:id="setPreview" fitWidth="500" preserveRatio="true" />
    <columnConstraints>
       <ColumnConstraints />
    </columnConstraints>

@@ -1,5 +1,9 @@
 package mandelbrotCalculator;
 
+import ui.Controller;
+
+import java.io.FileNotFoundException;
+
 public class MandelbrotSet {
 
     private double[][] interestingPoints = {{-0.75, 0}, {-0.77568377, 0.13646737}, {-1.74995768370609350360221450607069970727110579726252077930242837820286008082972804887218672784431700831100544507655659531379747541999999995, 0.00000000000000000278793706563379402178294753790944364927085054500163081379043930650189386849765202169477470552201325772332454726999999995}};
@@ -16,15 +20,18 @@ public class MandelbrotSet {
     private int width = 1920;
     private int threshold = 1000;
     private float ratio = 2 / 3f;
-    private int threadAmount = Runtime.getRuntime().availableProcessors();
+    private int threadAmount = Runtime.getRuntime().availableProcessors() / 2;
 
     //only declared
     private int height;
     private int iterations;
 
-    private boolean[] complete;
+    private boolean[] completeThreads;
+    private boolean[] completeFrames;
 
     private long startTime = System.currentTimeMillis();
+
+    private Controller controller;
 
 
     /**
@@ -34,10 +41,11 @@ public class MandelbrotSet {
      * @param zoomSpeed By how much the zoom value is multiplied every frame
      * @param frames The number of frames to be calculated
      */
-    public MandelbrotSet(int pointNumber, int quality, double zoomSpeed, int frames) {
+    public MandelbrotSet(int pointNumber, int quality, double zoomSpeed, int frames, Controller controller) {
         this.pointNumber = pointNumber;
         this.zoomSpeed = zoomSpeed;
         this.frames = frames;
+        this.controller = controller;
 
         height = (int) ((float) width * ratio);
 
@@ -50,11 +58,12 @@ public class MandelbrotSet {
             default -> quality;
         };
 
-        complete = new boolean[threadAmount];
+        completeThreads = new boolean[threadAmount];
+        completeFrames = new boolean[frames];
     }
 
-    public MandelbrotSet(){
-        this(2, 2, 1.2, 1);
+    public MandelbrotSet(Controller c){
+        this(2, 2, 1.2, 1, c);
     }
 
     public void startMandelbrot() {
@@ -115,11 +124,38 @@ public class MandelbrotSet {
         return zoomValues;
     }
 
+    /**
+     * Call when a new frame is finished
+     * @param frameNumber The number of the frame
+     */
+    public void frameFinished(int frameNumber){
+        completeFrames[frameNumber] = true;
+
+        int latestFrame = 0;
+        for(int i = 0; i < completeFrames.length; i++){
+            if(completeFrames[i]){
+                latestFrame = i;
+            }
+        }
+
+        System.err.println(latestFrame);
+
+        try {
+            controller.nextImage(latestFrame);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Call when a new Thread is finished
+     * @param threadNumber The Threadier
+     */
     public void setFinished(int threadNumber){
-        complete[threadNumber] = true;
+        completeThreads[threadNumber] = true;
 
         boolean finished = true;
-        for(boolean b : complete){
+        for(boolean b : completeThreads){
             if (!b) {
                 finished = false;
                 break;

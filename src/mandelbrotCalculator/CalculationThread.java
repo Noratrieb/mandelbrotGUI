@@ -50,6 +50,8 @@ public class CalculationThread extends Thread {
 
             createImage(image, frameCounter, width, height, values, iterations);
 
+            set.frameFinished(frameCounter);
+
             long frameTime = System.currentTimeMillis() - startTime;
             System.out.println("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
 
