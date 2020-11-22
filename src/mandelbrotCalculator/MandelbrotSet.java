@@ -50,6 +50,7 @@ public class MandelbrotSet {
         height = (int) ((float) width * ratio);
 
         iterations = switch (quality){
+            case -1 -> 10;
             case 0 -> 50;
             case 1 -> 100;
             case 2 -> 500;
@@ -85,7 +86,7 @@ public class MandelbrotSet {
         //create the threads
         CalculationThread[] threads = new CalculationThread[threadAmount];
         for (int i = 0; i < threadAmount; i++) {
-            threads[i] = new CalculationThread(this, i, threadAmount, frames, width, height, iterations, threshold, zoomValues);
+            threads[i] = new CalculationThread(controller, this, i, threadAmount, frames, width, height, iterations, threshold, zoomValues);
             threads[i].start();
         }
     }
@@ -138,8 +139,6 @@ public class MandelbrotSet {
             }
         }
 
-        System.err.println(latestFrame);
-
         try {
             controller.nextImage(latestFrame);
         } catch (FileNotFoundException e) {
@@ -164,11 +163,13 @@ public class MandelbrotSet {
 
         if(finished){
             System.out.println("CALCULATION FINISHED");
+            controller.printOutput("CALCULATION FINISHED");
             // TIME should probably not be here and serves no practical purpose but that doesn't stop me from keeping it here
             long endTime = System.currentTimeMillis();
             long completionTimeLong = endTime - startTime;
             double completionTimeSec = (double) completionTimeLong / 1000.0;
             System.out.println("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
+            controller.printOutput("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
         }
     }
 

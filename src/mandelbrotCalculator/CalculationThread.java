@@ -1,12 +1,17 @@
 package mandelbrotCalculator;
 
+import ui.Controller;
+import util.Values;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class CalculationThread extends Thread {
+public class CalculationThread implements Runnable {
+
+    private Thread thread;
 
     int threadNumber;
     int threadAmount;
@@ -19,7 +24,16 @@ public class CalculationThread extends Thread {
     CNumber[][] samples;
 
     MandelbrotSet set;
+    Controller controller;
 
+    public void start(){
+        if(thread == null){
+            thread = new Thread(this, String.valueOf(threadNumber));
+            thread.start();
+        }
+    }
+
+    @Override
     public void run() {
 
         long totalStartTime = System.currentTimeMillis();
@@ -54,18 +68,21 @@ public class CalculationThread extends Thread {
 
             long frameTime = System.currentTimeMillis() - startTime;
             System.out.println("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
+            controller.printOutput("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
 
         }
 
         long totalTime = System.currentTimeMillis() - totalStartTime;
         System.out.println("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
+        controller.printOutput("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
 
         set.setFinished(threadNumber);
 
     }
 
-    public CalculationThread(MandelbrotSet set, int number, int threads, int frames, int widthC, int heightC, int iterationsC, int thresholdC, double[][] zoomValuesC) {
+    public CalculationThread(Controller controller, MandelbrotSet set, int number, int threads, int frames, int widthC, int heightC, int iterationsC, int thresholdC, double[][] zoomValuesC) {
         this.set = set;
+        this.controller = controller;
         this.threadNumber = number;
         this.threadAmount = threads;
         this.frameAmount = frames;
@@ -78,7 +95,7 @@ public class CalculationThread extends Thread {
 
     /**
      * Creates an image from the calculated values
-     *  @param image      the image to be used
+     * @param image      the image to be used
      * @param counter    the frame number of the image
      * @param width      width of the image
      * @param height     height of the image
@@ -105,7 +122,7 @@ public class CalculationThread extends Thread {
             }
         }
         try {
-            File f = new File("C:\\Users\\nilsh\\Desktop\\testordner/image" + counter + ".png");
+            File f = new File(Values.SAVE_IMAGE_PATH + counter + ".png");
             ImageIO.write(image, "png", f);
         } catch (IOException e) {
             e.printStackTrace();

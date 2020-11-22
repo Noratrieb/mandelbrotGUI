@@ -14,6 +14,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Mandelbrot");
         primaryStage.setScene(new Scene(root, 500, 300));
+        primaryStage.setMaximized(true);
         primaryStage.show();
 
     }
