@@ -11,26 +11,26 @@ import java.io.IOException;
 
 public class CalculationThread implements Runnable {
 
+    private boolean running;
     private Thread thread;
 
-    int threadNumber;
-    int threadAmount;
-    int frameAmount;
-    int width;
-    int height;
-    int iterations;
-    int threshold;
-    double[][] zoomValues;
-    CNumber[][] samples;
+    private int threadNumber;
+    private int threadAmount;
+    private int frameAmount;
+    private int width;
+    private int height;
+    private int iterations;
+    private int threshold;
+    private double[][] zoomValues;
+    private CNumber[][] samples;
 
-    final MandelbrotSet set;
-    final Controller controller;
+    private final MandelbrotSet set;
+    private final Controller controller;
 
     public void start() {
         if (thread == null) {
-            synchronized (controller){
-                controller.printOutput("Thread " + threadNumber + " started");
-            }
+            controller.printOutput("Thread " + threadNumber + " started");
+
             thread = new Thread(this, String.valueOf(threadNumber));
             thread.start();
         }
@@ -38,7 +38,7 @@ public class CalculationThread implements Runnable {
 
     @Override
     public void run() {
-
+        running = true;
         long totalStartTime = System.currentTimeMillis();
 
         samples = new CNumber[width][height];
@@ -60,37 +60,31 @@ public class CalculationThread implements Runnable {
             // calculate values
             double[][] values = new double[width][height]; // new array of booleans for the drawing
             for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    values[i][j] = checkMandelbrot(samples[i][j], iterations, threshold); // check if the number is inside of th set
+                if (running) {
+                    for (int j = 0; j < height; j++) {
+                        values[i][j] = checkMandelbrot(samples[i][j], iterations, threshold); // check if the number is inside of th set
+                    }
+                } else {
+                    controller.printOutput("Thread " + threadNumber + " stopped");
+                    set.setFinished(threadNumber);
+                    return;
                 }
             }
 
             createImage(image, frameCounter, width, height, values, iterations);
-
-            synchronized (set) {
-                set.frameFinished(frameCounter);
-            }
+            set.frameFinished(frameCounter);
 
             long frameTime = System.currentTimeMillis() - startTime;
             System.out.println("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
 
-            synchronized (controller) {
-                controller.printOutput("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
-            }
-
+            controller.printOutput("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
         }
 
         long totalTime = System.currentTimeMillis() - totalStartTime;
         System.out.println("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
 
-        synchronized (controller) {
-            controller.printOutput("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
-        }
-
-        synchronized (set) {
-            set.setFinished(threadNumber);
-        }
-
+        controller.printOutput("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
+        set.setFinished(threadNumber);
     }
 
     public CalculationThread(Controller controller, MandelbrotSet set, int number, int threads, int frames, int widthC, int heightC, int iterationsC, int thresholdC, double[][] zoomValuesC) {
@@ -173,4 +167,7 @@ public class CalculationThread implements Runnable {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
+    public void stop() {
+        running = false;
+    }
 }

@@ -1,6 +1,8 @@
 package ui;
 
+import javafx.event.ActionEvent;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import mandelbrotCalculator.MandelbrotSet;
@@ -14,6 +16,12 @@ public class Controller {
 
     public ImageView setPreview;
     public TextArea output;
+    public TextField pointNumberField;
+    public TextField qualityField;
+    public TextField zoomSpeedField;
+    public TextField frameAmountField;
+
+    private MandelbrotSet m;
 
     public void nextImage(int frameNumber) throws FileNotFoundException {
 
@@ -21,13 +29,30 @@ public class Controller {
         Image image = new Image(stream);
         setPreview.setImage(image);
     }
-
     public void startCalculation() {
-        MandelbrotSet m = new MandelbrotSet(2, -1, 2, 100, this);
-        m.startMandelbrot();
+        String pointNumber = pointNumberField.getText();
+        String quality = qualityField.getText();
+        String zoomSpeed = zoomSpeedField.getText();
+        String frames = frameAmountField.getText();
+
+        try{
+            m = new MandelbrotSet(Integer.parseInt(pointNumber), Integer.parseInt(quality), Double.parseDouble(zoomSpeed), Integer.parseInt(frames), this);
+            m.startMandelbrot();
+        } catch (NumberFormatException ignored) {
+        }
+
     }
 
-    public void printOutput(String s){
+    public void stop(){
+        m.stop();
+    }
+
+    public void exitProgram() {
+        System.exit(0);
+    }
+
+    public synchronized void printOutput(String s){
         output.appendText(String.format("%n%s", s));
     }
+
 }

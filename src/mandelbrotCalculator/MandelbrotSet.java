@@ -28,6 +28,7 @@ public class MandelbrotSet {
 
     private boolean[] completeThreads;
     private boolean[] completeFrames;
+    private CalculationThread[] threads;
 
     private long startTime = System.currentTimeMillis();
 
@@ -50,12 +51,12 @@ public class MandelbrotSet {
         height = (int) ((float) width * ratio);
 
         iterations = switch (quality){
-            case -1 -> 10;
-            case 0 -> 50;
-            case 1 -> 100;
-            case 2 -> 500;
-            case 3 -> 1000;
-            case 4 -> 5000;
+            case 0 -> 10;
+            case 1 -> 50;
+            case 2 -> 100;
+            case 3 -> 500;
+            case 4 -> 1000;
+            case 5 -> 5000;
             default -> quality;
         };
 
@@ -84,7 +85,7 @@ public class MandelbrotSet {
         double[][] zoomValues = zoomValues(frames, width, height, forceCenterX, forceCenterY, zoomSpeed, zoom);
 
         //create the threads
-        CalculationThread[] threads = new CalculationThread[threadAmount];
+        threads = new CalculationThread[threadAmount];
         for (int i = 0; i < threadAmount; i++) {
             threads[i] = new CalculationThread(controller, this, i, threadAmount, frames, width, height, iterations, threshold, zoomValues);
             threads[i].start();
@@ -129,7 +130,7 @@ public class MandelbrotSet {
      * Call when a new frame is finished
      * @param frameNumber The number of the frame
      */
-    public void frameFinished(int frameNumber){
+    public synchronized void frameFinished(int frameNumber){
         completeFrames[frameNumber] = true;
 
         int latestFrame = 0;
@@ -150,7 +151,7 @@ public class MandelbrotSet {
      * Call when a new Thread is finished
      * @param threadNumber The Threadier
      */
-    public void setFinished(int threadNumber){
+    public synchronized void setFinished(int threadNumber){
         completeThreads[threadNumber] = true;
 
         boolean finished = true;
@@ -163,17 +164,19 @@ public class MandelbrotSet {
 
         if(finished){
             System.out.println("CALCULATION FINISHED");
-            synchronized (controller) {
-                controller.printOutput("CALCULATION FINISHED");
-            }
-            // TIME should probably not be here and serves no practical purpose but that doesn't stop me from keeping it here
+            controller.printOutput("CALCULATION FINISHED");
+
             long endTime = System.currentTimeMillis();
             long completionTimeLong = endTime - startTime;
             double completionTimeSec = (double) completionTimeLong / 1000.0;
             System.out.println("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
-            synchronized (controller) {
-                controller.printOutput("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
-            }
+            controller.printOutput("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
+        }
+    }
+
+    public void stop(){
+        for(CalculationThread c : threads){
+            c.stop();
         }
     }
 
