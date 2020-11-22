@@ -23,11 +23,14 @@ public class CalculationThread implements Runnable {
     double[][] zoomValues;
     CNumber[][] samples;
 
-    MandelbrotSet set;
-    Controller controller;
+    final MandelbrotSet set;
+    final Controller controller;
 
-    public void start(){
-        if(thread == null){
+    public void start() {
+        if (thread == null) {
+            synchronized (controller){
+                controller.printOutput("Thread " + threadNumber + " started");
+            }
             thread = new Thread(this, String.valueOf(threadNumber));
             thread.start();
         }
@@ -64,19 +67,29 @@ public class CalculationThread implements Runnable {
 
             createImage(image, frameCounter, width, height, values, iterations);
 
-            set.frameFinished(frameCounter);
+            synchronized (set) {
+                set.frameFinished(frameCounter);
+            }
 
             long frameTime = System.currentTimeMillis() - startTime;
             System.out.println("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
-            controller.printOutput("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
+
+            synchronized (controller) {
+                controller.printOutput("Frame " + frameCounter + " finished in " + ((double) frameTime / 1000) + "s");
+            }
 
         }
 
         long totalTime = System.currentTimeMillis() - totalStartTime;
         System.out.println("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
-        controller.printOutput("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
 
-        set.setFinished(threadNumber);
+        synchronized (controller) {
+            controller.printOutput("--Thread " + threadNumber + " completed. Process took " + ((double) totalTime / 1000) + "s");
+        }
+
+        synchronized (set) {
+            set.setFinished(threadNumber);
+        }
 
     }
 
@@ -95,12 +108,13 @@ public class CalculationThread implements Runnable {
 
     /**
      * Creates an image from the calculated values
+     *
      * @param image      the image to be used
      * @param counter    the frame number of the image
      * @param width      width of the image
      * @param height     height of the image
      * @param values     the values of every pixel
-     * @param iterations the amount of interations
+     * @param iterations the amount of iterations
      */
     void createImage(BufferedImage image, int counter, int width, int height, double[][] values, int iterations) {
 
@@ -131,9 +145,10 @@ public class CalculationThread implements Runnable {
 
     /**
      * Checks whether the number is in the Mandelbrot set
-     * @param number The Complex Number to be checked
+     *
+     * @param number     The Complex Number to be checked
      * @param iterations The amount of iterations the program should do
-     * @param threshold The threshold for a number not being in the set
+     * @param threshold  The threshold for a number not being in the set
      * @return -1 if the number is in the set, else it returns the amount of interations before it reached the threshold
      */
     int checkMandelbrot(CNumber number, int iterations, double threshold) {

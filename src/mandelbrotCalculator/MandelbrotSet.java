@@ -31,7 +31,7 @@ public class MandelbrotSet {
 
     private long startTime = System.currentTimeMillis();
 
-    private Controller controller;
+    private final Controller controller;
 
 
     /**
@@ -163,13 +163,17 @@ public class MandelbrotSet {
 
         if(finished){
             System.out.println("CALCULATION FINISHED");
-            controller.printOutput("CALCULATION FINISHED");
+            synchronized (controller) {
+                controller.printOutput("CALCULATION FINISHED");
+            }
             // TIME should probably not be here and serves no practical purpose but that doesn't stop me from keeping it here
             long endTime = System.currentTimeMillis();
             long completionTimeLong = endTime - startTime;
             double completionTimeSec = (double) completionTimeLong / 1000.0;
             System.out.println("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
-            controller.printOutput("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
+            synchronized (controller) {
+                controller.printOutput("Calculated " + frames + " frame/s in " + completionTimeSec + "s");
+            }
         }
     }
 
